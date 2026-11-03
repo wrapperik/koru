@@ -192,6 +192,14 @@ Handles Escape, backdrop dismissal, focus trapping, focus restoration and body s
 - `Skeleton` — `rect`, `text`, `circle`
 - `SkeletonText` — multi-line text placeholder
 
+## Auth building blocks
+
+`src/components/auth/` holds the pieces shared by onboarding, login and sign-up:
+
+- `AuthLayout` — primary brand panel + content column on `koru-auth-canvas`; the panel collapses on small screens. Also exports `AuthHeading` and `AuthDivider`.
+- `authRoles.js` — role copy, routes and tonal colours (student → primary, teacher → accent, admin → tertiary).
+- `RoleIcon` — the role's lucide icon on its tonal container (`sm`, `md`, `lg`).
+
 ## Rules for migration work
 
 1. Prefer Material 3 role tokens over raw hex values.

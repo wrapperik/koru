@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, GraduationCap, LockKeyhole, Mail } from "lucide-react";
-import { motion as Motion } from "framer-motion";
-import KoruLogo from "../components/UI/KoruLogo";
+import { ArrowLeft, LockKeyhole, Mail } from "lucide-react";
 import GoogleAuthButton from "../components/UI/googleAuthButton";
-import { Alert, Badge, Button, Card, Input, Select } from "../components/UI";
+import { Alert, Button, Input, Select } from "../components/UI";
+import AuthLayout, { AuthDivider, AuthHeading } from "../components/auth/AuthLayout";
+import RoleIcon from "../components/auth/RoleIcon";
+import { AUTH_ROLE_LIST } from "../components/auth/authRoles";
+import { cn } from "../utils/cn";
 import {
   loginUser,
   loginWithGoogle,
@@ -114,195 +116,168 @@ export default function Signup() {
   }
 
   return (
-    <div
-      data-tts-root="true"
-      className="koru-auth-canvas relative flex min-h-screen items-center justify-center px-4 py-10"
+    <AuthLayout
+      panelTitle="Start growing with Koru."
+      panelBody="Create your account to join your institution's courses, classes and community."
+      contentClassName="max-w-[520px]"
     >
-      <Motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-2xl"
-      >
-        <Card
-          variant="elevated"
-          tone="low"
-          padding="none"
-          radius="3xl"
-          className="overflow-hidden shadow-koru-lg"
+      <AuthHeading
+        eyebrow={
+          <Link
+            to="/"
+            className="-ml-3 inline-flex items-center gap-1.5 rounded-koru-pill px-3 py-1.5 text-sm font-medium text-koru-on-surface-variant transition-colors hover:bg-koru-on-surface/8 hover:text-koru-primary"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            Back
+          </Link>
+        }
+        title="Create your account"
+        subtitle="New here? It only takes a minute."
+      />
+
+      <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+        {/* Role – tonal choice chips using the same role icons as onboarding */}
+        <fieldset className="sm:col-span-2">
+          <legend className="mb-1.5 text-koru-label text-koru-on-surface-variant">I am a</legend>
+          <div className="grid grid-cols-3 gap-2">
+            {AUTH_ROLE_LIST.map((role) => {
+              const selected = form.role === role.key;
+              return (
+                <label
+                  key={role.key}
+                  className={cn(
+                    "flex cursor-pointer flex-col items-center gap-2 rounded-koru-lg px-2 py-3 text-koru-label transition duration-150 ease-koru-out",
+                    "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-koru-focus",
+                    selected
+                      ? "bg-koru-surface-container-lowest text-koru-on-surface shadow-koru-sm ring-2 ring-inset ring-koru-primary"
+                      : "bg-koru-surface-container text-koru-on-surface-variant hover:bg-koru-surface-container-high",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value={role.key}
+                    checked={selected}
+                    onChange={handleChange}
+                    className="sr-only"
+                  />
+                  <RoleIcon role={role} size="md" />
+                  {role.key === "admin" ? "Admin" : role.label}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <Input
+          label="First name"
+          name="firstName"
+          value={form.firstName}
+          onChange={handleChange}
+          placeholder="Jane"
+          autoComplete="given-name"
+          required
+        />
+
+        <Input
+          label="Last name"
+          name="lastName"
+          value={form.lastName}
+          onChange={handleChange}
+          placeholder="Doe"
+          autoComplete="family-name"
+          required
+        />
+
+        <Input
+          label="Email address"
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          placeholder="you@example.com"
+          autoComplete="email"
+          startIcon={<Mail size={16} />}
+          containerClassName="sm:col-span-2"
+          required
+        />
+
+        <Select
+          label="Institution"
+          name="institution"
+          value={form.institution}
+          onChange={handleChange}
+          autoComplete="organization"
+          containerClassName="sm:col-span-2"
+          required
         >
-          <div className="relative px-6 pb-6 pt-8 sm:px-8">
-            <Link
-              to="/"
-              className="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-koru-pill px-3 py-1.5 text-sm font-medium text-koru-on-surface-variant transition-colors hover:bg-koru-on-surface/8 hover:text-koru-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-koru-focus sm:left-8"
-            >
-              <ArrowLeft size={16} />
-              Back
-            </Link>
+          <option value="" disabled>
+            Select your institution
+          </option>
+          {institutions.map((institution) => (
+            <option key={institution} value={institution}>
+              {institution}
+            </option>
+          ))}
+        </Select>
 
-            <div className="flex flex-col items-center text-center">
-              <KoruLogo className="h-14 w-14" />
-              <Badge variant="primary" size="md" className="mt-4">
-                New account
-              </Badge>
-              <h1 className="mt-4 font-display text-koru-title text-koru-on-surface">
-                Create account
-              </h1>
-              <p className="mt-2 max-w-sm text-koru-body text-koru-on-surface-variant">
-                New here? Let&apos;s get you set up.
-              </p>
-            </div>
-          </div>
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="Create a password"
+          autoComplete="new-password"
+          startIcon={<LockKeyhole size={16} />}
+          required
+        />
 
-          <div
-            aria-hidden="true"
-            className="h-1.5 w-full bg-gradient-to-r from-koru-primary via-koru-secondary to-koru-tertiary"
-          />
+        <Input
+          label="Confirm password"
+          name="confirmPassword"
+          type="password"
+          value={form.confirmPassword}
+          onChange={handleChange}
+          placeholder="Repeat your password"
+          autoComplete="new-password"
+          startIcon={<LockKeyhole size={16} />}
+          required
+        />
 
-          <div className="px-6 pb-8 pt-6 sm:px-8">
-            <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="First name"
-                name="firstName"
-                value={form.firstName}
-                onChange={handleChange}
-                placeholder="Jane"
-                autoComplete="given-name"
-                required
-              />
+        {error ? (
+          <Alert variant="error" className="sm:col-span-2">
+            {error}
+          </Alert>
+        ) : null}
 
-              <Input
-                label="Last name"
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-                placeholder="Doe"
-                autoComplete="family-name"
-                required
-              />
+        {success ? (
+          <Alert variant="success" className="sm:col-span-2">
+            {success}
+          </Alert>
+        ) : null}
 
-              <Input
-                label="Email address"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                autoComplete="email"
-                startIcon={<Mail size={16} />}
-                containerClassName="sm:col-span-2"
-                required
-              />
+        <Button type="submit" size="lg" fullWidth loading={loading} className="mt-2 sm:col-span-2">
+          {loading ? "Creating account…" : "Create account"}
+        </Button>
+      </form>
 
-              <Select
-                label="Institution"
-                name="institution"
-                value={form.institution}
-                onChange={handleChange}
-                autoComplete="organization"
-                containerClassName="sm:col-span-2"
-                required
-              >
-                <option value="" disabled>
-                  Select your institution
-                </option>
-                {institutions.map((institution) => (
-                  <option key={institution} value={institution}>
-                    {institution}
-                  </option>
-                ))}
-              </Select>
+      <div className="my-5">
+        <AuthDivider />
+      </div>
 
-              <Input
-                label="Password"
-                name="password"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Create a password"
-                autoComplete="new-password"
-                startIcon={<LockKeyhole size={16} />}
-                required
-              />
+      <GoogleAuthButton
+        text="signup_with"
+        onCredential={handleGoogleSignup}
+        onError={(err) => setError(err.message || "Google sign-up failed.")}
+      />
 
-              <Input
-                label="Confirm password"
-                name="confirmPassword"
-                type="password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Repeat your password"
-                autoComplete="new-password"
-                startIcon={<LockKeyhole size={16} />}
-                required
-              />
-
-              <Select
-                label="Role"
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                containerClassName="sm:col-span-2"
-              >
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-                <option value="admin">Admin</option>
-              </Select>
-
-              {error ? (
-                <Alert variant="error" className="sm:col-span-2">
-                  {error}
-                </Alert>
-              ) : null}
-
-              {success ? (
-                <Alert variant="success" className="sm:col-span-2">
-                  {success}
-                </Alert>
-              ) : null}
-
-              <Button
-                type="submit"
-                size="lg"
-                fullWidth
-                loading={loading}
-                startIcon={<GraduationCap size={18} />}
-                className="mt-1 sm:col-span-2"
-              >
-                {loading ? "Creating account..." : "Let's Learn"}
-              </Button>
-            </form>
-
-            <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-koru-on-surface-variant/70">
-              <span className="h-px flex-1 bg-koru-outline-variant" />
-              <span>or</span>
-              <span className="h-px flex-1 bg-koru-outline-variant" />
-            </div>
-
-            <GoogleAuthButton
-              text="signup_with"
-              onCredential={handleGoogleSignup}
-              onError={(err) =>
-                setError(err.message || "Google sign-up failed.")
-              }
-            />
-
-            <p className="mt-5 text-center text-sm text-koru-on-surface-variant">
-              Already have an account?{" "}
-              <Link
-                to={`/${form.role}/login`}
-                className="font-medium text-koru-primary hover:underline"
-              >
-                Log in
-              </Link>
-            </p>
-          </div>
-        </Card>
-
-        <p className="mt-4 text-center text-koru-caption text-koru-on-surface-variant">
-          Protected by Koru · POPIA-compliant by design
-        </p>
-      </Motion.div>
-    </div>
+      <p className="mt-6 text-center text-sm text-koru-on-surface-variant">
+        Already have an account?{" "}
+        <Link to={`/${form.role}/login`} className="font-medium text-koru-primary hover:underline">
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

@@ -1,46 +1,70 @@
-import React from "react";
-import OnboardBackground from "../assets/backgrounds/background-2.png";
-import OnboardingButton from "../components/UI/onboardingButton";
+import { Link } from "react-router-dom";
+import { motion as Motion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
+import { Badge, Card, CardDescription, CardTitle } from "../components/UI";
+import AuthLayout, { AuthHeading } from "../components/auth/AuthLayout";
+import RoleIcon from "../components/auth/RoleIcon";
+import { AUTH_ROLE_LIST } from "../components/auth/authRoles";
 
-// Role icons – displayed inside the onboarding selection buttons
-import StudentIcon from "../assets/icons/Student.png";
-import TeacherIcon from "../assets/icons/Teacher.png";
-import AdminIcon from "../assets/icons/Administrator.png";
+const listVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } },
+};
 
-// Animated Koru branding
-import KoruLogo from "../components/UI/KoruLogo";
+const itemVariants = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.2, 0, 0, 1] } },
+};
 
 // Onboarding page – introduces the platform and routes users by role
 export default function Onboarding() {
   return (
-    <div
-      data-tts-root="true"
-      className="fixed inset-0 m-0 flex h-screen w-screen items-center justify-center overflow-hidden bg-center bg-cover bg-no-repeat"
-      style={{ backgroundImage: `url(${OnboardBackground})` }}
-    >
-      {/* Welcome section – displays the platform branding and tagline */}
-      <div className="absolute top-[12%] left-[6%] z-10 flex flex-col">
-        <h1 className="mb-4 font-display text-koru-title text-koru-on-surface">
-          Welcome to
-        </h1>
-        <div className="h-20 sm:h-24 flex items-center justify-start">
-          <KoruLogo showText={true} className="h-full w-auto" />
-        </div>
-      </div>
+    <AuthLayout>
+      <AuthHeading
+        eyebrow={<Badge variant="primary" size="md">Welcome to Koru</Badge>}
+        title="Who's signing in?"
+        subtitle="Choose your role and we'll take you to the right place."
+      />
 
-      {/* Role selection section – lets the user choose how they want to continue */}
-      <div className="absolute bottom-[27%] left-[5%] z-10 flex flex-col gap-6">
-        <h1 className="text-center font-display text-koru-title text-koru-on-surface">
-          First tell us who you are
-        </h1>
+      <Motion.ul
+        variants={listVariants}
+        initial="hidden"
+        animate="show"
+        aria-label="Choose your role"
+        className="flex flex-col gap-3"
+      >
+        {AUTH_ROLE_LIST.map((role) => (
+          <Motion.li key={role.key} variants={itemVariants}>
+            <Card
+              as={Link}
+              to={role.route}
+              variant="interactive"
+              tone="surface"
+              padding="sm"
+              radius="xl"
+              className="group flex items-center gap-4 shadow-koru-xs ring-1 ring-inset ring-koru-outline-variant/60 hover:ring-koru-outline-variant focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-koru-focus"
+            >
+              <RoleIcon role={role} size="lg" />
+              <div className="min-w-0 flex-1">
+                <CardTitle>{role.label}</CardTitle>
+                <CardDescription className="!mt-0.5">{role.description}</CardDescription>
+              </div>
+              <ChevronRight
+                size={20}
+                aria-hidden="true"
+                className="shrink-0 text-koru-on-surface-variant transition-transform duration-150 ease-koru-out group-hover:translate-x-0.5 group-hover:text-koru-primary"
+              />
+            </Card>
+          </Motion.li>
+        ))}
+      </Motion.ul>
 
-        {/* Role buttons – direct each user type to the correct flow */}
-        <div className="flex flex-row gap-4">
-          <OnboardingButton role="Student" icon={StudentIcon} />
-          <OnboardingButton role="Teacher" icon={TeacherIcon} />
-          <OnboardingButton role="Admin" icon={AdminIcon} />
-        </div>
-      </div>
-    </div>
+      <p className="mt-8 text-koru-label font-normal text-koru-on-surface-variant">
+        New to Koru?{" "}
+        <Link to="/signup" className="font-medium text-koru-primary hover:underline">
+          Create an account
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
